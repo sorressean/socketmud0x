@@ -1,3 +1,6 @@
+/*
+*Socketmud0x
+*/
 // ****************************************************************************
 // SocketMud II Copyright 2004 Brian Graversen
 // ****************************************************************************
@@ -10,28 +13,24 @@
 // based on this code must contain this header information in all files.
 // ****************************************************************************
 
-#ifndef HEADER_SOCKET
-#define HEADER_SOCKET
-
-// c++ headers
+#ifndef SOCKET_H
+#define SOCKET_H
 #include <string>
 
-class Socket {
- public:
-  Socket  ( int desc );
-  ~Socket ( void );
+class Socket
+{
+    int                  control;
+    std::string          inBuffer;
+    std::string          outBuffer;
+public:
+    Socket  ( int desc );
+    ~Socket ();
 
-  int                  GetControl     ( void );
-  bool                 Read           ( void );
-  void                 Write          ( std::string txt );
-  bool                 Flush          ( void );
-  std::string          GetInBuffer    ( void );
-  void                 ClrInBuffer    ( void );
-
- private:
-  int                  control;
-  std::string          inBuffer;
-  std::string          outBuffer;
+    int                  GetControl     () const;
+    bool                 Read           ();
+    void                 Write          ( const std::string &txt );
+    bool                 Flush          ();
+    std::string          GetInBuffer    () const;
+    void                 ClrInBuffer    ();
 };
-
 #endif

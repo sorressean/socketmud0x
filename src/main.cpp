@@ -10,50 +10,63 @@
 // based on this code must contain this header information in all files.
 // ****************************************************************************
 
+#include <cstdlib>
+#include <iostream>
 #include "server.h"
+#include "socket.h"
 
-int main(int argc, char** argv) {
-  Server *mServer = new Server();
-  int port;
+static void GameLoop(Server* server)
+{
+    while(1)
+        {
+            // poll all sockets for incoming data
+            server->PollSockets();
 
-  switch(argc) {
-    case 2:
-      port = atoi(argv[1]);
-      if (port < 1024 || port > 9999) {
-	printf("[port] must be between 1024 and 9999\n");
-	return 1;
-      }
-      break;
+            std::list<Socket*> socketList = server->GetSocketList();
 
-    default:
-      printf("Syntax: %s [port]\n", argv[0]);
-      return 1;
-  }
+            // echo everything that each socket has sent to us
+            for (Socket* sock:socketList)
+                {
+                    sock->Write(sock->GetInBuffer());
+                    sock->ClrInBuffer();
+                }
 
-  mServer->Connect(port);
+            // flush all outgoing data
+            server->FlushSockets();
 
-  while(1) {
-    // poll all sockets for incoming data
-    mServer->PollSockets();
+            // sleep the rest of the pulse
+            server->Sleep(5);
+        }
+}
 
-    std::list<Socket*> socketList = mServer->GetSocketList();
-    std::list<Socket*>::iterator iSocket;
-    Socket *pSocket;
+int main(int argc, char** argv)
+{
+    Server* server = nullptr;
+    int port = 0;
 
-    // echo everything that each socket has sent to us
-    for (iSocket = socketList.begin(); iSocket != socketList.end(); ) {
-      pSocket = *iSocket++;
+//we check to see if a port was provided.
+    if (argc == 2)
+        {
+            port = atoi(argv[1]);
+        }
+    else
+        {
+//todo: allow to change the hard-coded port
+            port = 4000;
+        }
+    if (port < 1024 || port > 9999)
+        {
+            std::cerr << "Error: Port must be between 1024 and 9999." << std::endl;
+            return EXIT_FAILURE;
+        }
 
-      pSocket->Write(pSocket->GetInBuffer());
-      pSocket->ClrInBuffer();
-    }
+//create the server and make it listen.
+    server = new Server();
+    server->Connect(port);
 
-    // flush all outgoing data
-    mServer->FlushSockets();
+//enter our game loop.
+    GameLoop(server);
 
-    // sleep the rest of the pulse
-    mServer->Sleep(5);
-  }
-
-  return 1;
+//nothing happened, exit successfully.
+    return 0;
 }

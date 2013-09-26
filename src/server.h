@@ -1,3 +1,6 @@
+/*
+*Socketmud0x
+*/
 // ****************************************************************************
 // SocketMud II Copyright 2004 Brian Graversen
 // ****************************************************************************
@@ -10,39 +13,31 @@
 // based on this code must contain this header information in all files.
 // ****************************************************************************
 
-#ifndef HEADER_SERVER
-#define HEADER_SERVER
-
-// c++ headers
+#ifndef SERVER_H
+#define SERVER_H
 #include <list>
-
-// c headers
 #include <arpa/inet.h>
-
-// local headers
+#include <sys/time.h>
 #include "socket.h"
 
-class Server {
- public:
-  Server  ( void );
-  ~Server ( void );
+class Server
+{
+    void                 Accept           ();
+    void                 CloseSocket      ( Socket *pSocket );
+    std::list<Socket*>   socketList;
+    int                  control;
+    fd_set               fSet;
+    fd_set               rSet;
+    sockaddr_in          my_addr;
+    struct timeval       lastSleep;
+public:
+    Server  ();
+    ~Server ();
 
-  bool                 Connect          ( int port );
-  void                 FlushSockets     ( void );
-  bool                 PollSockets      ( void );
-  void                 Sleep            ( int pps );
-  std::list<Socket*>   GetSocketList    ( void );
-
- private:
-  void                 Accept           ( void );
-  void                 CloseSocket      ( Socket *pSocket );
-
-  std::list<Socket*>   socketList;
-  int                  control;
-  fd_set               fSet;
-  fd_set               rSet;
-  sockaddr_in          my_addr;
-  struct timeval       lastSleep;
+    bool                 Connect          ( int port );
+    void                 FlushSockets     ();
+    bool                 PollSockets      ();
+    void                 Sleep            ( int pps );
+    std::list<Socket*>   GetSocketList    ();
 };
-
 #endif
