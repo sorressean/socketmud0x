@@ -1,5 +1,5 @@
 CC	= g++
-C_FLAGS	= -Wall -pedantic -ansi -g -std=c++11
+C_FLAGS	= -Wall -pedantic -ansi -g -std=c++11 -O2
 L_FLAGS	= 
 
 O_FILES	= socket.o server.o main.o
@@ -13,5 +13,4 @@ $(O_FILES): %.o: %.cpp
 
 clean:
 	rm -f *.o
-	rm -f *.*~
 	rm -f SocketMud
