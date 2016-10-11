@@ -17,7 +17,9 @@
 #define SERVER_H
 #include <list>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 #include <sys/time.h>
+#include <sys/socket.h>
 #include "socket.h"
 
 class Server
