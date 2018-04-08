@@ -77,7 +77,7 @@ bool Server::Connect(int port)
 bool Server::PollSockets()
 {
     static struct timeval tv;
-
+    Socket* sclose = NULL;
     // copy the permanent descriptor set
     memcpy(&rSet, &fSet, sizeof(fd_set));
 
@@ -92,13 +92,19 @@ bool Server::PollSockets()
     for (Socket* sock: socketList)
         {
 
+            // if previous socket marked for close, then close it
+            if (sclose)
+            {
+                CloseSocket(sclose);
+                sclose = NULL; //reset close pointer
+            }
             // attempt to read from this socket if pending incoming data
             if (FD_ISSET(sock->GetControl(), &rSet))
                 {
 
-                    // if read fails, close the connection
+                    // if read fails, close the connection, after iterater advances
                     if (sock->Read() == false)
-                        CloseSocket(sock);
+                        sclose = sock;
                 }
         }
 
