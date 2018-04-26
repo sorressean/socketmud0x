@@ -104,7 +104,15 @@ bool Server::PollSockets()
 
                     // if read fails, close the connection, after iterater advances
                     if (sock->Read() == false)
-                        sclose = sock;
+                    {
+                        if(sock = socketList.back())
+                        {
+                            CloseSocket(sock);
+                        }
+                        else
+                        {
+                            sclose = sock;
+                        }
                 }
         }
 
