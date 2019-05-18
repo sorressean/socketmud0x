@@ -16,17 +16,20 @@
 #ifndef SERVER_H
 #define SERVER_H
 #include <list>
+#include <memory>
+
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/time.h>
 #include <sys/socket.h>
+
 #include "socket.h"
 
 class Server
 {
     void                 Accept           ();
-    void                 CloseSocket      ( Socket *pSocket );
-    std::list<Socket*>   socketList;
+    void                 CloseSocket      ( std::shared_ptr<Socket> socket);
+    std::list<std::shared_ptr<Socket>>   socketList;
     int                  control;
     fd_set               fSet;
     fd_set               rSet;
@@ -39,7 +42,7 @@ public:
     bool                 Connect          ( int port );
     void                 FlushSockets     ();
     bool                 PollSockets      ();
-    void                 Sleep            ( int pps );
-    std::list<Socket*>   GetSocketList    ();
+    void                 Sleep            ( const int pps );
+    std::list<std::shared_ptr<Socket>>   GetSocketList    () const;
 };
 #endif

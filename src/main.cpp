@@ -12,20 +12,27 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <memory>
+
 #include "server.h"
 #include "socket.h"
 
-static void GameLoop(Server* server)
+using namespace std;
+
+//keeps track if the server is running.
+static volatile bool running = false;
+
+static void GameLoop(shared_ptr<Server> server)
 {
-    while(1)
+    while(running)
         {
             // poll all sockets for incoming data
             server->PollSockets();
 
-            std::list<Socket*> socketList = server->GetSocketList();
+            auto socketList = server->GetSocketList();
 
             // echo everything that each socket has sent to us
-            for (Socket* sock:socketList)
+            for (auto sock:socketList)
                 {
                     sock->Write(sock->GetInBuffer());
                     sock->ClrInBuffer();
@@ -41,9 +48,7 @@ static void GameLoop(Server* server)
 
 int main(int argc, char** argv)
 {
-    Server* server = nullptr;
     int port = 0;
-
 //we check to see if a port was provided.
     if (argc == 2)
         {
@@ -56,17 +61,18 @@ int main(int argc, char** argv)
         }
     if (port < 1024 || port > 9999)
         {
-            std::cerr << "Error: Port must be between 1024 and 9999." << std::endl;
+            cerr << "Error: Port must be between 1024 and 9999." << std::endl;
             return EXIT_FAILURE;
         }
 
 //create the server and make it listen.
-    server = new Server();
+    auto server = make_shared<Server>();
     server->Connect(port);
 
+    running = true;
 //enter our game loop.
     GameLoop(server);
 
 //nothing happened, exit successfully.
-    return 0;
+    return EXIT_SUCCESS;
 }

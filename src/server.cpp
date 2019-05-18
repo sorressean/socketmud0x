@@ -9,6 +9,8 @@
 // intact. This header may not be removed or changed, and any work released
 // based on this code must contain this header information in all files.
 // ****************************************************************************
+#include <memory>
+#include <list>
 
 #include <cstring>
 #include <unistd.h>
@@ -16,14 +18,14 @@
 #include <sys/time.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+
 #include "server.h"
 
-Server::Server()
+using namespace std;
+
+Server::Server():
+    control(-1)
 {
-
-    // initialize control to -1
-    control = -1;
-
     // clear the descriptor sets
     FD_ZERO(&fSet);
     FD_ZERO(&rSet);
@@ -37,7 +39,6 @@ Server::Server()
 
 Server::~Server()
 {
-
     // close the connection if it is active
     if (control != -1)
         close(control);
@@ -45,13 +46,12 @@ Server::~Server()
 
 bool Server::Connect(int port)
 {
-    int reuse = 1;
-
     // try to create a communications endpoint
     if ((control = socket(AF_INET, SOCK_STREAM, 0)) == -1)
         return false;
 
     // set options for this control socket
+    const int reuse = 1;
     if (setsockopt(control, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int)) == -1)
         return false;
 
@@ -76,12 +76,11 @@ bool Server::Connect(int port)
 
 bool Server::PollSockets()
 {
-    static struct timeval tv;
-
     // copy the permanent descriptor set
     memcpy(&rSet, &fSet, sizeof(fd_set));
 
     // poll the descriptor set
+        static timeval tv;
     if (select(FD_SETSIZE, &rSet, NULL, NULL, &tv) < 0)
         return false;
 
@@ -89,13 +88,11 @@ bool Server::PollSockets()
     Accept();
 
     // iterate through all sockets and read pending data
-    for (Socket* sock: socketList)
+    for (auto sock: socketList)
         {
-
             // attempt to read from this socket if pending incoming data
             if (FD_ISSET(sock->GetControl(), &rSet))
                 {
-
                     // if read fails, close the connection
                     if (sock->Read() == false)
                         CloseSocket(sock);
@@ -107,13 +104,11 @@ bool Server::PollSockets()
 
 void Server::FlushSockets()
 {
-
     // iterate through all sockets and flush outgoing data
-    for (Socket* sock: socketList)
+    for (auto sock: socketList)
         {
-
             // Attempt to flush this socket, close socket if failure
-            if (sock->Flush() == false)
+            if (!sock->Flush())
                 CloseSocket(sock);
         }
 }
@@ -122,19 +117,17 @@ void Server::FlushSockets()
 // like 4, 5, 8 or 10. This is the amount of "commands" that will
 // be processed each second, and it is recommended to have a
 // constant defined for this purpose.
-void Server::Sleep(int pps)
+void Server::Sleep(const int pps)
 {
-    struct timeval newTime;
-    int secs, usecs;
-
     if (pps <= 0)
         return;
 
-    gettimeofday(&newTime, NULL);
+    struct timeval newTime;
+    gettimeofday(&newTime, nullptr);
 
     // calculate exact amount of time we need to sleep
-    usecs = (int) (lastSleep.tv_usec -  newTime.tv_usec) + 1000000 / pps;
-    secs  = (int) (lastSleep.tv_sec  -  newTime.tv_sec);
+    int usecs = (int) (lastSleep.tv_usec -  newTime.tv_usec) + 1000000 / pps;
+    int secs  = (int) (lastSleep.tv_sec  -  newTime.tv_sec);
 
     while (usecs < 0)
         {
@@ -155,54 +148,49 @@ void Server::Sleep(int pps)
             sleepTime.tv_usec = usecs;
             sleepTime.tv_sec  = secs;
 
-            select(0, NULL, NULL, NULL, &sleepTime);
+            select(0, nullptr, nullptr, nullptr, &sleepTime);
         }
 
     // remember when we last slept
-    gettimeofday(&lastSleep, NULL);
+    gettimeofday(&lastSleep, nullptr);
 }
 
-void Server::CloseSocket(Socket *pSocket)
+void Server::CloseSocket(shared_ptr<Socket> socket)
 {
-
     // remove the socket from the socket list
-    socketList.remove(pSocket);
+    socketList.remove(socket);
 
     // clear the sockets descriptor from the listening set
-    FD_CLR(pSocket->GetControl(), &fSet);
-
-    // and finally delete the socket
-    delete pSocket;
+    FD_CLR(socket->GetControl(), &fSet);
 }
 
 void Server::Accept()
 {
-    Socket *pSocket;
-    int len = sizeof(my_addr);
-    int desc, argp = 1;
-
     // any new connections pending ?
     if (!FD_ISSET(control, &rSet))
         return;
 
     // try to accept new connection
+    const int len = sizeof(my_addr);
+    int desc = 0;
     if ((desc = accept(control, (struct sockaddr *) &my_addr, (socklen_t *) &len)) == -1)
         return;
 
     // allocate a new socket
-    pSocket = new Socket(desc);
+    auto socket = make_shared<Socket>(desc);
 
     // set non-blocking I/O
+    const int argp = 1;
     ioctl(desc, FIONBIO, &argp);
 
     // attach to socket list
-    socketList.push_back(pSocket);
+    socketList.push_back(socket);
 
     // attach to file descriptor set
     FD_SET(desc, &fSet);
 }
 
-std::list<Socket*> Server::GetSocketList()
+list<shared_ptr<Socket>> Server::GetSocketList() const
 {
     return socketList;
 }
