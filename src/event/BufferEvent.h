@@ -14,11 +14,11 @@ namespace Event
 {
 class BufferEvent:public IEvent
 {
-bufferevent* m_bufferEvent;
+    bufferevent* m_bufferEvent;
 public:
-BufferEvent(bufferevent* event);
-~BufferEvent() = default;
-static std::shared_ptr<BufferEvent> Create(bufferevent* event);
+    BufferEvent(bufferevent* event);
+    ~BufferEvent() = default;
+    static std::shared_ptr<BufferEvent> Create(bufferevent* event);
 };
 
 }

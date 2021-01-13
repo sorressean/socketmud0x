@@ -20,15 +20,15 @@ namespace Event
 */
 class Server:public NonCopyable<Server>
 {
-std::list<SocketPtr> m_sockets;
-std::shared_ptr<EventBase> m_eventBase;
+    std::list<SocketPtr> m_sockets;
+    std::shared_ptr<EventBase> m_eventBase;
 
-void OnAccept(const EventCode& event, int fd);
-void AddSocket(SocketPtr socket);
+    void OnAccept(const EventCode& event, int fd);
+    void AddSocket(SocketPtr socket);
 public:
-Server(std::shared_ptr<EventBase> eventBase = nullptr);
-~Server() = default;
-void CreateListener(short port);
+    Server(std::shared_ptr<EventBase> eventBase = nullptr);
+    ~Server() = default;
+    void CreateListener(short port);
 };
 
 }

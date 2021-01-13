@@ -10,10 +10,10 @@ namespace Event
 {
 class EventCode:public NonCopyable<EventCode>
 {
-short m_event;
+    short m_event;
 public:
-EventCode(short event);
-~EventCode() = default;
+    EventCode(short event);
+    ~EventCode() = default;
 };
 }
 #endif

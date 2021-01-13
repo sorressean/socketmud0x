@@ -11,11 +11,11 @@ namespace Event
 {
 shared_ptr<BufferEvent> BufferEvent::Create(bufferevent* event)
 {
-return make_shared<BufferEvent>(event);
+    return make_shared<BufferEvent>(event);
 }
 
 BufferEvent::BufferEvent(bufferevent* event):
-m_bufferEvent(event)
+    m_bufferEvent(event)
 {
 }
 

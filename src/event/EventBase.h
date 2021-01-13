@@ -16,13 +16,13 @@ namespace Event
 class EventBase:public NonCopyable<EventBase>
 {
 private:
-event_base* m_eventBase;
+    event_base* m_eventBase;
 public:
-EventBase();
-~EventBase();
-event_base* GetEventBase() const;
-void Dispatch();
-static std::shared_ptr<EventBase> Create();
+    EventBase();
+    ~EventBase();
+    event_base* GetEventBase() const;
+    void Dispatch();
+    static std::shared_ptr<EventBase> Create();
 };
 
 typedef std::shared_ptr<EventBase> EventBasePtr;
