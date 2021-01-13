@@ -4,17 +4,20 @@ find_package(LibEvent REQUIRED)
 
 SET(SOURCE
 main.cpp
-server.cpp
-socket.cpp
+event/BufferEvent.cpp
 event/event.cpp
+event/EventCode.cpp
+event/EventBase.cpp
+event/server.cpp
 event/socket.cpp
 )
 set(HEADERS
 noncopyable.hpp
-server.h
-socket.h
 event/event.h
+event/BufferEvent.h
+event/EventCode.h
 event/EventBase.h
+event/server.h
 event/socket.h
 event/SocketException.hpp
 )
