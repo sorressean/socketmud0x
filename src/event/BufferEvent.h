@@ -1,6 +1,3 @@
-/**
-* Event is a thin wrapper around libevent's struct object.
-*/
 #ifndef BUFFER_EVENT_H
 #define BUFFER_EVENT_H
 #include <memory>
@@ -8,11 +5,14 @@
 #include <event2/event_struct.h>
 #include <event2/bufferevent.h>
 
-#include "IEvent.h"
+#include "../noncopyable.hpp"
 
 namespace Event
 {
-class BufferEvent:public IEvent
+/**
+* This is a thin wrapper around the libevent bufferevent structure.
+*/
+class BufferEvent:public NonCopyable<BufferEvent>
 {
     bufferevent* m_bufferEvent;
 public:
