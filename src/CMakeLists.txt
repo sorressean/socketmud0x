@@ -8,7 +8,6 @@ event/BufferEvent.cpp
 event/event.cpp
 event/EventCode.cpp
 event/EventBase.cpp
-event/server.cpp
 event/socket.cpp
 )
 set(HEADERS
@@ -17,7 +16,7 @@ event/event.h
 event/BufferEvent.h
 event/EventCode.h
 event/EventBase.h
-event/server.h
+event/server.hpp
 event/socket.h
 event/SocketException.hpp
 )
