@@ -8,6 +8,8 @@
 #include "../noncopyable.hpp"
 #include "EventBase.h"
 #include "EventCode.h"
+#include "IServer.h"
+#include "ISocket.h"
 #include "socket.h"
 
 namespace Event
@@ -16,14 +18,14 @@ namespace Event
 * The server class is responsible for managing listening and connected sockets.
 */
 template <typename T>
-class Server:public NonCopyable<Server<T>>
+class Server:public IServer, NonCopyable<Server<T>>
 {
     std::list<std::shared_ptr<T>> m_sockets;
     std::shared_ptr<EventBase> m_eventBase;
 
     void OnAccept(const EventCode& event, int fd)
     {
-        auto socket = T::Create(m_eventBase);
+        auto socket = T::Create(this, m_eventBase);
         socket->InitializeSocket(fd);
         AddSocket(socket);
     }
@@ -50,12 +52,25 @@ public:
 
     void CreateListener(short port)
     {
-        auto socket = Socket::Create(m_eventBase, bind(&Server::OnAccept, this, std::placeholders::_1, std::placeholders::_2));
+        auto socket = Socket::Create(this, m_eventBase, bind(&Server::OnAccept, this, std::placeholders::_1, std::placeholders::_2));
         socket->InitializeSocket();
         socket->Listen(port);
         AddSocket(socket);
     }
 
+void Close(ISocket* socket)
+{
+const auto socketFd = socket->GetFd();
+const auto itEnd = m_sockets.end();
+for (auto it = m_sockets.begin(); it != itEnd; ++it)
+{
+if ((*it)->GetFd() == socketFd)
+{
+m_sockets.erase(it);
+return;
+}
+}
+}
 };
 
 }

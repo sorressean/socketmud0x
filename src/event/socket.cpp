@@ -50,21 +50,22 @@ static void SocketAcceptCallbackProxy(int fd, short event, void* arg)
     socket->SocketAcceptEvent(eventObject, fd);
 }
 
-SocketPtr Socket::Create(EventBasePtr eventBase)
+SocketPtr Socket::Create(IServer* server, EventBasePtr eventBase)
 {
-    return make_shared<Socket>(eventBase);
+    return make_shared<Socket>(server, eventBase);
 }
-SocketPtr Socket::Create(EventBasePtr eventBase, SocketAcceptCallback acceptCallback)
+SocketPtr Socket::Create(IServer* server, EventBasePtr eventBase, SocketAcceptCallback acceptCallback)
 {
-    auto socket = make_shared<Socket>(eventBase);
+    auto socket = make_shared<Socket>(server, eventBase);
     socket->SetSocketAcceptCallback(acceptCallback);
     return socket;
 }
 
-Socket::Socket(EventBasePtr eventBase):
+Socket::Socket(IServer* server, EventBasePtr eventBase):
     m_fd(nullopt),
     m_eventBase(eventBase),
-    m_eventBuffer(nullptr)
+    m_eventBuffer(nullptr),
+m_server(server)
 {
 }
 
@@ -112,6 +113,10 @@ void Socket::Close()
 {
     if (m_fd.has_value())
         {
+if (m_server)
+{
+m_server->Close(this);
+}
             close(*m_fd);
             m_fd = nullopt;
         }
@@ -200,6 +205,16 @@ void Socket::SetDescriptor(int fd)
             Close();
         }
     m_fd = fd;
+}
+
+int Socket::GetFd() const
+{
+if (m_fd.has_value())
+{
+return *m_fd;
+}
+
+return -1;
 }
 
 }
