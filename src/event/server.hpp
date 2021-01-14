@@ -58,19 +58,19 @@ public:
         AddSocket(socket);
     }
 
-void Close(ISocket* socket)
-{
-const auto socketFd = socket->GetFd();
-const auto itEnd = m_sockets.end();
-for (auto it = m_sockets.begin(); it != itEnd; ++it)
-{
-if ((*it)->GetFd() == socketFd)
-{
-m_sockets.erase(it);
-return;
-}
-}
-}
+    void Close(ISocket* socket)
+    {
+        const auto socketFd = socket->GetFd();
+        const auto itEnd = m_sockets.end();
+        for (auto it = m_sockets.begin(); it != itEnd; ++it)
+            {
+                if ((*it)->GetFd() == socketFd)
+                    {
+                        m_sockets.erase(it);
+                        return;
+                    }
+            }
+    }
 };
 
 }

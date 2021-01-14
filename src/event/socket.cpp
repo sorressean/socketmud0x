@@ -65,7 +65,7 @@ Socket::Socket(IServer* server, EventBasePtr eventBase):
     m_fd(nullopt),
     m_eventBase(eventBase),
     m_eventBuffer(nullptr),
-m_server(server)
+    m_server(server)
 {
 }
 
@@ -113,10 +113,10 @@ void Socket::Close()
 {
     if (m_fd.has_value())
         {
-if (m_server)
-{
-m_server->Close(this);
-}
+            if (m_server)
+                {
+                    m_server->Close(this);
+                }
             close(*m_fd);
             m_fd = nullopt;
         }
@@ -209,12 +209,12 @@ void Socket::SetDescriptor(int fd)
 
 int Socket::GetFd() const
 {
-if (m_fd.has_value())
-{
-return *m_fd;
-}
+    if (m_fd.has_value())
+        {
+            return *m_fd;
+        }
 
-return -1;
+    return -1;
 }
 
 }

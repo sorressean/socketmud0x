@@ -9,8 +9,8 @@ namespace Event
 class IServer
 {
 public:
-virtual void CreateListener(short port) = 0;
-virtual void Close(ISocket* socket) = 0;
+    virtual void CreateListener(short port) = 0;
+    virtual void Close(ISocket* socket) = 0;
 };
 }
 #endif

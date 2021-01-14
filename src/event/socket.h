@@ -30,7 +30,7 @@ class Socket:public ISocket
     SocketAcceptCallback m_acceptCallback;
     EventBasePtr m_eventBase;
     Event m_event;
-IServer* m_server;
+    IServer* m_server;
 
     void SetNonblocking() const;
     void SetReuseAddress() const;
@@ -49,7 +49,7 @@ public:
     virtual void Listen(int port, int listenQueueLength = 5);
     void SetSocketAcceptCallback(SocketAcceptCallback acceptCallback);
     void SetDescriptor(int fd);
-virtual int GetFd() const;
+    virtual int GetFd() const;
 };
 
 typedef std::shared_ptr<Socket> SocketPtr;
